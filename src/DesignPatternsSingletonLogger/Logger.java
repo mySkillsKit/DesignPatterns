@@ -9,7 +9,7 @@ public class Logger {
     // В этом поле храним ссылку на тот
     // единственный объект этого класса
     // который будем отдавать пользователям
-    private static Logger logger = null;
+    private static volatile Logger logger;
 
     // Запрещаем пользователям пользоваться
     // конструктором нашего класса
@@ -23,8 +23,14 @@ public class Logger {
     // мы заполняем в этом методе если оно
     // до того не было заполнено
     public static Logger getInstance() {
-        if (logger == null) {
-            logger = new Logger();
+        Logger locallogger = logger;
+        if (locallogger == null) {
+            synchronized (Logger.class) {
+                locallogger = logger;
+                if (locallogger == null) {
+                    logger = new Logger();
+                }
+            }
         }
         return logger;
     }
